@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LexAI — Contract Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0D0D0F;
+    --paper: #F7F4EF;
+    --cream: #EDE9E1;
+    --gold: #C9A84C;
+    --gold-light: #E8D5A0;
+    --red: #C0392B;
+    --amber: #D47C1A;
+    --green: #2D7A4F;
+    --red-bg: #FDF0EE;
+    --amber-bg: #FDF6EE;
+    --green-bg: #EEF7F2;
+    --muted: #6B6560;
+    --border: #D8D2C8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--ink);
+    padding: 18px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo { display: flex; align-items: center; gap: 12px; }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 13px; font-weight: 700; color: var(--ink);
+  }
+
+  .logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 600; color: #fff;
+  }
+
+  .logo-sub {
+    font-size: 10px; color: var(--gold-light);
+    letter-spacing: 0.12em; text-transform: uppercase;
+    font-weight: 300; margin-top: 2px;
+  }
+
+  .header-right {
+    display: flex; flex-direction: column;
+    align-items: flex-end; gap: 5px;
+  }
+
+  .header-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; color: var(--gold);
+    border: 1px solid var(--gold);
+    padding: 4px 10px; letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .header-builder {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; color: #555;
+    letter-spacing: 0.06em;
+  }
+
+  .header-builder span { color: #888; }
+
+  .hero {
+    padding: 72px 48px 48px;
+    max-width: 900px; margin: 0 auto;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; color: var(--gold);
+    letter-spacing: 0.14em; text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px; font-weight: 700;
+    line-height: 1.1; color: var(--ink);
+    margin-bottom: 16px;
+  }
+
+  .hero h1 em { font-style: italic; color: var(--gold); }
+
+  .hero p {
+    font-size: 16px; color: var(--muted);
+    line-height: 1.7; max-width: 560px; font-weight: 300;
+  }
+
+  .main {
+    max-width: 900px; margin: 0 auto;
+    padding: 0 48px 80px;
+  }
+
+  .upload-section { margin-bottom: 40px; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .sample-row {
+    display: flex; align-items: center;
+    gap: 10px; margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .sample-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; color: var(--muted);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .sample-btn {
+    background: var(--cream); border: 1px solid var(--border);
+    padding: 8px 16px; font-family: 'DM Mono', monospace;
+    font-size: 11px; color: var(--ink); cursor: pointer;
+    transition: all 0.15s; letter-spacing: 0.04em;
+  }
+
+  .sample-btn:hover { background: var(--gold-light); border-color: var(--gold); }
+  .sample-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .input-area {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    transition: border-color 0.2s;
+  }
+
+  .input-area:focus-within { border-color: var(--gold); }
+
+  .input-area textarea {
+    width: 100%; min-height: 220px;
+    padding: 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px; line-height: 1.8; color: var(--ink);
+    background: transparent; border: none; outline: none; resize: vertical;
+  }
+
+  .input-area textarea::placeholder { color: #BCBAB5; font-style: italic; }
+
+  .input-toolbar {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--cream);
+  }
+
+  .char-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; color: var(--muted);
+  }
+
+  .analyze-btn {
+    background: var(--ink); color: #fff; border: none;
+    padding: 12px 32px; font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    cursor: pointer; display: flex; align-items: center; gap: 10px;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .analyze-btn:hover { background: #222; }
+  .analyze-btn:active { transform: scale(0.98); }
+  .analyze-btn:disabled { background: #999; cursor: not-allowed; }
+
+  .loading-state {
+    display: none; padding: 60px 0; text-align: center;
+  }
+
+  .loading-state.active { display: block; }
+
+  .loading-glyph {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px; color: var(--gold);
+    animation: pulse 1.5s ease-in-out infinite;
+    margin-bottom: 20px;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.95); }
+  }
+
+  .loading-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px; color: var(--muted);
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+
+  .loading-steps {
+    margin-top: 16px; display: flex;
+    justify-content: center; gap: 8px;
+  }
+
+  .loading-dot {
+    width: 6px; height: 6px; background: var(--gold);
+    border-radius: 50%; animation: bounce 1.2s ease-in-out infinite;
+  }
+
+  .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); opacity: 0.4; }
+    50% { transform: translateY(-8px); opacity: 1; }
+  }
+
+  .results-section { display: none; animation: fadeUp 0.5s ease forwards; }
+  .results-section.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .summary-bar {
+    background: var(--ink); color: #fff;
+    padding: 24px 32px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
+    margin-bottom: 40px;
+  }
+
+  .summary-stat {
+    text-align: center; padding: 0 20px;
+    border-right: 1px solid #2A2A30;
+  }
+
+  .summary-stat:last-child { border-right: none; }
+
+  .stat-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px; font-weight: 700;
+    display: block; margin-bottom: 4px;
+  }
+
+  .stat-number.red { color: #E05A4E; }
+  .stat-number.amber { color: #F0A500; }
+  .stat-number.green { color: #4CAF82; }
+  .stat-number.white { color: #fff; }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #666;
+  }
+
+  .results-header {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 24px;
+  }
+
+  .results-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; font-weight: 600;
+  }
+
+  .filter-tabs { display: flex; gap: 4px; }
+
+  .filter-tab {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 6px 14px;
+    background: var(--cream); border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.15s; color: var(--muted);
+  }
+
+  .filter-tab.active,
+  .filter-tab:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .flag-list { display: flex; flex-direction: column; gap: 16px; }
+
+  .flag-card {
+    background: #fff; border: 1.5px solid var(--border);
+    border-left: 4px solid var(--border);
+    padding: 24px 28px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    animation: cardIn 0.4s ease forwards; opacity: 0;
+  }
+
+  .flag-card:hover {
+    transform: translateX(4px);
+    box-shadow: -4px 0 0 var(--gold), 4px 4px 20px rgba(0,0,0,0.06);
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .flag-card.high { border-left-color: var(--red); }
+  .flag-card.medium { border-left-color: var(--amber); }
+  .flag-card.low { border-left-color: var(--green); }
+
+  .flag-top {
+    display: flex; align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px; gap: 16px;
+  }
+
+  .flag-category {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .flag-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 600;
+    color: var(--ink); line-height: 1.3;
+  }
+
+  .risk-badge {
+    flex-shrink: 0; font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 5px 12px; font-weight: 500;
+  }
+
+  .risk-badge.high { background: var(--red-bg); color: var(--red); border: 1px solid #E8B4B0; }
+  .risk-badge.medium { background: var(--amber-bg); color: var(--amber); border: 1px solid #E8D0A0; }
+  .risk-badge.low { background: var(--green-bg); color: var(--green); border: 1px solid #A8D4BC; }
+
+  .flag-clause {
+    background: var(--cream); border-left: 3px solid var(--border);
+    padding: 12px 16px; font-family: 'DM Mono', monospace;
+    font-size: 12px; line-height: 1.7; color: var(--ink);
+    margin-bottom: 14px; font-style: italic;
+  }
+
+  .flag-explanation {
+    font-size: 14px; line-height: 1.7; color: var(--muted);
+    margin-bottom: 16px; font-weight: 300;
+  }
+
+  .flag-suggestion {
+    display: flex; gap: 10px;
+    background: #F0FBF5; border: 1px solid #B8E2CC;
+    padding: 14px 16px;
+  }
+
+  .suggestion-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+  .suggestion-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green);
+    margin-bottom: 4px; font-weight: 500;
+  }
+
+  .suggestion-text { font-size: 13px; line-height: 1.6; color: #1E5C3A; }
+
+  .assessment-block {
+    margin-top: 40px; background: var(--ink);
+    color: #fff; padding: 36px 40px;
+  }
+
+  .assessment-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--gold); margin-bottom: 16px;
+  }
+
+  .assessment-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; line-height: 1.65;
+    font-weight: 400; color: #E8E4DC;
+  }
+
+  .reset-btn {
+    margin-top: 40px; background: transparent;
+    border: 1.5px solid var(--border); padding: 12px 28px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    color: var(--muted); cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .reset-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+  .error-state {
+    display: none; background: var(--red-bg);
+    border: 1px solid #E8B4B0; padding: 16px 20px;
+    margin-top: 12px;
+    font-family: 'DM Mono', monospace; font-size: 12px;
+    color: var(--red);
+  }
+
+  .error-state.active { display: block; }
+
+  footer {
+    background: var(--ink); padding: 20px 48px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .footer-left { display: flex; flex-direction: column; gap: 4px; }
+
+  .footer-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px; color: var(--gold-light); font-weight: 600;
+  }
+
+  .footer-credit {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; color: #444; letter-spacing: 0.08em;
+  }
+
+  .footer-credit span { color: #888; }
+
+  .footer-disclaimer {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; color: #444;
+    letter-spacing: 0.06em; text-align: right;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">Lex</div>
+    <div>
+      <div class="logo-text">LexAI</div>
+      <div class="logo-sub">Contract Intelligence</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="header-badge">Powered by Claude AI</div>
+    <div class="header-builder">Built by <span>Adomokhai Joseph</span></div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-eyebrow">Enterprise Legal AI · Risk Analysis</div>
+  <h1>Contract Review,<br><em>Reimagined.</em></h1>
+  <p>Load a sample contract below and click Analyze. LexAI identifies risky clauses, flags compliance issues, and suggests safer alternatives — in seconds, not hours.</p>
+</div>
+
+<div class="main">
+
+  <div class="upload-section" id="inputSection">
+    <div class="section-label">Select a Sample Contract</div>
+
+    <div class="sample-row">
+      <span class="sample-label">Load sample →</span>
+      <button class="sample-btn" id="btn-nda" onclick="loadSample('nda')">NDA Agreement</button>
+      <button class="sample-btn" id="btn-service" onclick="loadSample('service')">Service Contract</button>
+      <button class="sample-btn" id="btn-employment" onclick="loadSample('employment')">Employment Agreement</button>
+    </div>
+
+    <div class="input-area">
+      <textarea id="contractInput" placeholder="Click one of the sample contracts above to load it here, then hit Analyze…" readonly></textarea>
+      <div class="input-toolbar">
+        <span class="char-count" id="charCount">0 characters</span>
+        <button class="analyze-btn" id="analyzeBtn" onclick="analyzeContract()">
+          <span>⚖</span>
+          Analyze Contract
+        </button>
+      </div>
+    </div>
+
+    <div class="error-state" id="errorState"></div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" id="loadingState">
+    <div class="loading-glyph">⚖</div>
+    <div class="loading-text" id="loadingText">Reading contract structure...</div>
+    <div class="loading-steps">
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results-section" id="resultsSection">
+
+    <div class="summary-bar">
+      <div class="summary-stat">
+        <span class="stat-number red" id="highCount">0</span>
+        <span class="stat-label">High Risk</span>
+      </div>
+      <div class="summary-stat">
+        <span class="stat-number amber" id="medCount">0</span>
+        <span class="stat-label">Medium Risk</span>
+      </div>
+      <div class="summary-stat">
+        <span class="stat-number green" id="lowCount">0</span>
+        <span class="stat-label">Low Risk</span>
+      </div>
+      <div class="summary-stat">
+        <span class="stat-number white" id="totalCount">0</span>
+        <span class="stat-label">Total Flags</span>
+      </div>
+    </div>
+
+    <div class="results-header">
+      <div class="results-title">Risk Report</div>
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterFlags('all', this)">All</button>
+        <button class="filter-tab" onclick="filterFlags('high', this)">High</button>
+        <button class="filter-tab" onclick="filterFlags('medium', this)">Medium</button>
+        <button class="filter-tab" onclick="filterFlags('low', this)">Low</button>
+      </div>
+    </div>
+
+    <div class="flag-list" id="flagList"></div>
+
+    <div class="assessment-block">
+      <div class="assessment-label">Overall Assessment</div>
+      <div class="assessment-text" id="assessmentText"></div>
+    </div>
+
+    <button class="reset-btn" onclick="resetTool()">← Analyze Another Contract</button>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-left">
+    <div class="footer-brand">LexAI — Contract Intelligence</div>
+    <div class="footer-credit">Designed &amp; built by <span>Adomokhai Joseph</span></div>
+  </div>
+  <div class="footer-disclaimer">Not a substitute for qualified legal counsel</div>
+</footer>
+
+<script>
+
+// ── SAMPLE CONTRACT TEXT ──
+const samples = {
+  nda: `NON-DISCLOSURE AGREEMENT
+
+This Agreement is entered into as of January 1, 2025, between Apex Solutions Inc. ("Disclosing Party") and the undersigned party ("Receiving Party").
+
+1. CONFIDENTIAL INFORMATION
+The Receiving Party agrees to keep strictly confidential all information disclosed by the Disclosing Party, including but not limited to trade secrets, business plans, financial data, and client lists, for an unlimited period of time.
+
+2. NON-COMPETE
+The Receiving Party shall not, for a period of 5 years after termination of this agreement, engage in any business activity that competes, directly or indirectly, with the Disclosing Party in any jurisdiction worldwide.
+
+3. PENALTIES
+In the event of any breach, the Receiving Party agrees to pay liquidated damages of $500,000 per incident, regardless of actual damages incurred.
+
+4. INTELLECTUAL PROPERTY
+Any work, invention, or idea conceived by the Receiving Party during the term of this agreement, even outside working hours and using personal resources, shall be the sole property of the Disclosing Party.
+
+5. TERMINATION
+This agreement may be terminated by the Disclosing Party at any time without notice. The Receiving Party may not terminate this agreement.
+
+6. GOVERNING LAW
+This agreement shall be governed by the laws of the Disclosing Party's choosing, which may be changed at any time.`,
+
+  service: `SERVICE AGREEMENT
+
+This Service Agreement is made between TechVenture LLC ("Client") and ServicePro Inc. ("Service Provider") effective March 1, 2025.
+
+1. SERVICES
+Service Provider agrees to deliver software development services as requested by Client from time to time. Scope of work may be modified by Client at any time without additional compensation.
+
+2. PAYMENT TERMS
+Client shall pay Service Provider within 90 days of invoice. Client reserves the right to dispute any invoice within 180 days of receipt, during which payment may be withheld entirely.
+
+3. LIABILITY CAP
+Service Provider's total liability shall not exceed $100, regardless of the nature or extent of damages, including loss of data, loss of revenue, or business interruption.
+
+4. INDEMNIFICATION
+Service Provider shall indemnify and hold harmless Client from any and all claims, damages, and expenses, including legal fees, arising from any cause whatsoever, including Client's own negligence.
+
+5. TERMINATION
+Client may terminate this Agreement at any time with immediate effect. Service Provider must provide 180 days written notice to terminate.
+
+6. PAYMENT ON TERMINATION
+Upon termination by either party, Client shall owe no further payments for work completed but not yet delivered.`,
+
+  employment: `EMPLOYMENT AGREEMENT
+
+This Employment Agreement is entered between Orion Corp ("Employer") and the Employee effective upon signing.
+
+1. POSITION AND DUTIES
+Employee agrees to perform such duties as assigned by Employer from time to time. Job title and responsibilities may be modified without notice or additional compensation.
+
+2. COMPENSATION
+Base salary of $60,000 per year, payable monthly. Employer reserves the right to reduce compensation at any time with 24 hours notice.
+
+3. WORKING HOURS
+Employee is expected to be available 24 hours a day, 7 days a week, including public holidays. Overtime will not be separately compensated.
+
+4. INTELLECTUAL PROPERTY
+All inventions, creative works, and ideas generated by Employee, whether during or outside working hours, shall be the exclusive property of Employer in perpetuity.
+
+5. NON-COMPETE AND NON-SOLICIT
+Employee shall not work for any competitor or start any competing business for a period of 10 years after leaving employment, anywhere in the world.
+
+6. AT-WILL TERMINATION
+Employer may terminate Employee at any time for any reason. Employee must provide 6 months written notice before resigning, failing which Employee forfeits all accrued benefits.
+
+7. DISPUTE RESOLUTION
+All disputes shall be resolved exclusively through arbitration chosen and paid for by Employer, whose decision shall be final and binding.`
+};
+
+// ── PRE-GENERATED ANALYSIS RESULTS ──
+const results = {
+  nda: {
+    flags: [
+      {
+        category: "Confidentiality",
+        title: "Unlimited Confidentiality Period",
+        risk: "high",
+        clause: "The Receiving Party agrees to keep strictly confidential all information...for an unlimited period of time.",
+        explanation: "An unlimited confidentiality obligation is legally unenforceable in most jurisdictions and commercially unreasonable. Courts frequently void such clauses entirely, leaving both parties with no protection. Standard NDAs use 2–5 year confidentiality windows.",
+        suggestion: "Negotiate a defined term — typically 3 to 5 years — with carve-outs for information that enters the public domain through no fault of the Receiving Party."
+      },
+      {
+        category: "Non-Compete",
+        title: "Worldwide 5-Year Non-Compete",
+        risk: "high",
+        clause: "The Receiving Party shall not...engage in any business activity that competes...in any jurisdiction worldwide.",
+        explanation: "A worldwide non-compete with no geographic or industry scope limitation is overbroad and unenforceable in most US states and many international jurisdictions. It effectively prevents the Receiving Party from working in their field entirely. Courts regularly strike these down.",
+        suggestion: "Limit the non-compete to specific geographic markets where the Disclosing Party operates, a clearly defined set of competitive activities, and a maximum of 1–2 years post-termination."
+      },
+      {
+        category: "Liability",
+        title: "Disproportionate Liquidated Damages",
+        risk: "high",
+        clause: "The Receiving Party agrees to pay liquidated damages of $500,000 per incident, regardless of actual damages incurred.",
+        explanation: "Liquidated damages clauses that bear no reasonable relationship to actual harm are treated as unenforceable penalty clauses under contract law. The 'regardless of actual damages' language makes this particularly aggressive and exposes the Receiving Party to catastrophic financial liability for minor technical breaches.",
+        suggestion: "Replace with a proportionate damages clause tied to demonstrable harm. If liquidated damages are retained, they should be capped and linked to the actual value of the information disclosed."
+      },
+      {
+        category: "Intellectual Property",
+        title: "Blanket IP Ownership Including Personal Work",
+        risk: "high",
+        clause: "Any work, invention, or idea conceived by the Receiving Party...even outside working hours and using personal resources, shall be the sole property of the Disclosing Party.",
+        explanation: "Claiming ownership of IP created outside working hours and using personal resources is legally questionable in most jurisdictions and ethically unreasonable. Several US states explicitly prohibit such clauses. This could strip the Receiving Party of entirely unrelated personal inventions.",
+        suggestion: "Limit IP assignment strictly to work produced using the Disclosing Party's confidential information or resources, during the engagement, and directly related to the disclosed subject matter."
+      },
+      {
+        category: "Termination",
+        title: "Unilateral and Asymmetric Termination Rights",
+        risk: "medium",
+        clause: "This agreement may be terminated by the Disclosing Party at any time without notice. The Receiving Party may not terminate this agreement.",
+        explanation: "One-sided termination rights create an imbalanced relationship where the Receiving Party bears ongoing obligations but has no exit mechanism. This is particularly concerning given the unlimited confidentiality term — the Receiving Party could be bound indefinitely with no recourse.",
+        suggestion: "Both parties should hold equal termination rights with reasonable notice — typically 30 days. Upon termination, the confidentiality obligation should continue for a defined, limited period only."
+      },
+      {
+        category: "Governing Law",
+        title: "Changeable Governing Law Provision",
+        risk: "medium",
+        clause: "This agreement shall be governed by the laws of the Disclosing Party's choosing, which may be changed at any time.",
+        explanation: "Allowing the governing jurisdiction to be changed unilaterally after signing is highly irregular and legally suspect. It could expose the Receiving Party to unknown legal systems, higher litigation costs, and loss of local legal protections at any moment.",
+        suggestion: "Specify a fixed governing jurisdiction agreed upon at signing. Any changes to governing law should require mutual written consent from both parties."
+      }
+    ],
+    assessment: "This NDA is heavily skewed in favor of the Disclosing Party and contains multiple provisions that are likely unenforceable as written. The combination of unlimited confidentiality, a worldwide non-compete, disproportionate penalties, and asymmetric termination rights represents an unreasonable risk profile for the Receiving Party. Legal review and significant renegotiation are strongly recommended before signing."
+  },
+
+  service: {
+    flags: [
+      {
+        category: "Payment",
+        title: "90-Day Payment Terms with 180-Day Dispute Window",
+        risk: "high",
+        clause: "Client shall pay Service Provider within 90 days of invoice. Client reserves the right to dispute any invoice within 180 days.",
+        explanation: "90-day payment terms are already twice the industry standard of 30–45 days, creating serious cash flow risk for the Service Provider. A 180-day dispute window that suspends payment entirely means the Client can effectively delay payment for 9 months on any invoice without consequence.",
+        suggestion: "Negotiate payment terms to Net 30. Dispute windows should be no longer than 30 days from invoice receipt, and disputed amounts should be limited to the contested portion only — not the entire invoice."
+      },
+      {
+        category: "Liability",
+        title: "Liability Cap of $100",
+        risk: "high",
+        clause: "Service Provider's total liability shall not exceed $100, regardless of the nature or extent of damages.",
+        explanation: "A $100 liability cap on a professional services contract is essentially zero liability protection for the Client. In the event of a serious failure — data breach, system outage, or project abandonment — the Client has virtually no legal recourse to recover actual losses, which could be substantial.",
+        suggestion: "Liability caps should be proportionate to contract value — typically 100% of fees paid in the prior 12 months. Carve out gross negligence, willful misconduct, and data breaches from any cap entirely."
+      },
+      {
+        category: "Indemnification",
+        title: "Service Provider Indemnifies Client for Client's Own Negligence",
+        risk: "high",
+        clause: "Service Provider shall indemnify and hold harmless Client from any and all claims...arising from any cause whatsoever, including Client's own negligence.",
+        explanation: "Requiring a Service Provider to indemnify the Client for the Client's own negligence is legally unconscionable in most jurisdictions and will likely be struck down by courts. It also creates perverse incentives — the Client bears no responsibility for its own actions during the engagement.",
+        suggestion: "Indemnification should be mutual and limited to each party's own acts, omissions, and negligence. Neither party should be required to indemnify the other for that party's own wrongdoing."
+      },
+      {
+        category: "Termination",
+        title: "Asymmetric Termination Notice — 180 Days vs. Immediate",
+        risk: "high",
+        clause: "Client may terminate this Agreement at any time with immediate effect. Service Provider must provide 180 days written notice to terminate.",
+        explanation: "Immediate termination for the Client versus 180 days notice for the Service Provider is a deeply one-sided arrangement. The Service Provider could be dismissed with no notice while being contractually trapped in the engagement for 6 months if they wish to exit.",
+        suggestion: "Both parties should have equal notice periods — typically 30 to 60 days. If the Client requires immediate termination rights, the Service Provider should receive equivalent rights plus a termination fee covering lost revenue during the notice period."
+      },
+      {
+        category: "Scope",
+        title: "Scope Modifications Without Compensation",
+        risk: "medium",
+        clause: "Scope of work may be modified by Client at any time without additional compensation.",
+        explanation: "Allowing unlimited scope modifications without compensation creates an open-ended liability for the Service Provider. The Client could continuously expand the project requirements while paying the original fixed price, making the contract commercially unviable.",
+        suggestion: "Include a formal change order process — any scope modification must be agreed in writing by both parties and accompanied by a revised fee schedule before work begins."
+      },
+      {
+        category: "Payment",
+        title: "No Payment for Completed Undelivered Work on Termination",
+        risk: "medium",
+        clause: "Upon termination by either party, Client shall owe no further payments for work completed but not yet delivered.",
+        explanation: "This clause allows the Client to benefit from completed work without payment simply by terminating before formal delivery. It incentivizes opportunistic termination and leaves the Service Provider with no compensation for substantial work already performed.",
+        suggestion: "On termination, the Client should pay for all work completed on a pro-rata basis at the point of termination, regardless of whether formal delivery has occurred."
+      }
+    ],
+    assessment: "This Service Agreement is structured almost entirely in the Client's favor and would be commercially unsustainable for any professional Service Provider. The combination of delayed payment terms, near-zero liability, indemnification of Client negligence, and asymmetric termination rights creates an extreme imbalance. This contract requires substantial renegotiation before it can be considered fair or commercially viable."
+  },
+
+  employment: {
+    flags: [
+      {
+        category: "Compensation",
+        title: "Employer Can Reduce Salary with 24 Hours Notice",
+        risk: "high",
+        clause: "Employer reserves the right to reduce compensation at any time with 24 hours notice.",
+        explanation: "Allowing the employer to unilaterally reduce an employee's agreed salary with only 24 hours notice undermines the fundamental purpose of an employment contract. In most jurisdictions, this constitutes a breach of the employment agreement and may be unlawful. It provides zero financial security for the employee.",
+        suggestion: "Remove this clause entirely. Compensation changes should require mutual written agreement. If reductions are necessary due to business conditions, provide a minimum 60-day notice period with a clear floor below which salary cannot fall."
+      },
+      {
+        category: "Working Hours",
+        title: "24/7 Availability With No Overtime Compensation",
+        risk: "high",
+        clause: "Employee is expected to be available 24 hours a day, 7 days a week, including public holidays. Overtime will not be separately compensated.",
+        explanation: "Requiring 24/7 availability with no overtime compensation likely violates labor laws in most jurisdictions, including the US Fair Labor Standards Act for non-exempt employees. It also creates unsustainable working conditions and significant employee health and wellbeing risk.",
+        suggestion: "Define specific working hours clearly. Any work beyond standard hours should be compensated at the statutory overtime rate. On-call provisions should be clearly defined, limited, and separately compensated."
+      },
+      {
+        category: "Intellectual Property",
+        title: "IP Ownership Extends to Personal Time and Personal Resources",
+        risk: "high",
+        clause: "All inventions, creative works, and ideas generated by Employee, whether during or outside working hours, shall be the exclusive property of Employer in perpetuity.",
+        explanation: "Claiming ownership of all employee ideas and inventions regardless of when or how they were created is prohibited by statute in several US states (California, Delaware, Illinois, Minnesota, North Carolina, and Washington). It could strip the employee of entirely unrelated personal projects, side businesses, and creative work.",
+        suggestion: "IP assignment should be limited to inventions created using company resources, during working hours, and directly related to the company's business. A carve-out schedule for pre-existing personal projects should be attached to the agreement."
+      },
+      {
+        category: "Non-Compete",
+        title: "10-Year Worldwide Non-Compete",
+        risk: "high",
+        clause: "Employee shall not work for any competitor or start any competing business for a period of 10 years after leaving employment, anywhere in the world.",
+        explanation: "A 10-year worldwide non-compete is almost certainly unenforceable in its entirety. Courts routinely void non-competes that are unreasonable in duration, geographic scope, or breadth of restricted activity. This clause would effectively prevent the employee from working in their professional field for a decade.",
+        suggestion: "If a non-compete is legitimate, limit it to 6–12 months, specific geographic markets where the company directly operates, and narrowly defined competitive activities. Several jurisdictions are moving to ban non-competes entirely — seek local legal counsel."
+      },
+      {
+        category: "Termination",
+        title: "6-Month Resignation Notice with Forfeiture of Benefits",
+        risk: "high",
+        clause: "Employee must provide 6 months written notice before resigning, failing which Employee forfeits all accrued benefits.",
+        explanation: "A 6-month resignation notice requirement is extreme by any employment standard and may be unenforceable. The forfeiture of accrued benefits — including potentially earned wages — for failing to provide this notice may violate wage payment laws in most jurisdictions.",
+        suggestion: "Resignation notice should be 2–4 weeks, standard for the industry. Accrued benefits, particularly earned wages and vested entitlements, cannot legally be forfeited regardless of notice period compliance."
+      },
+      {
+        category: "Dispute Resolution",
+        title: "Employer-Controlled Arbitration",
+        risk: "medium",
+        clause: "All disputes shall be resolved exclusively through arbitration chosen and paid for by Employer, whose decision shall be final and binding.",
+        explanation: "Arbitration controlled and funded entirely by the employer creates a significant conflict of interest. The arbitrator, selected and paid by the employer, has a financial incentive to rule in the employer's favor. This effectively denies the employee meaningful access to neutral dispute resolution.",
+        suggestion: "Disputes should be resolved through mutually agreed neutral arbitration, with costs shared equally or through a fee-shifting arrangement. Employees should retain the right to bring certain claims — particularly wage claims and discrimination claims — before public courts."
+      }
+    ],
+    assessment: "This employment agreement is one of the most one-sided contracts of its type, granting the employer near-total control while stripping the employee of basic legal protections around compensation, working hours, intellectual property, and dispute resolution. Multiple clauses are likely unenforceable as written and may violate statutory employment law. No candidate should sign this agreement without extensive legal review and renegotiation of every flagged provision."
+  }
+};
+
+// ── STATE ──
+let currentSample = null;
+const loadingMessages = [
+  "Reading contract structure...",
+  "Scanning clause patterns...",
+  "Identifying risk vectors...",
+  "Generating recommendations...",
+  "Compiling risk report..."
+];
+
+// ── CHAR COUNTER ──
+document.getElementById('contractInput').addEventListener('input', function() {
+  document.getElementById('charCount').textContent = this.value.length.toLocaleString() + ' characters';
+});
+
+// ── LOAD SAMPLE ──
+function loadSample(type) {
+  currentSample = type;
+  const ta = document.getElementById('contractInput');
+  ta.value = samples[type];
+  document.getElementById('charCount').textContent = ta.value.length.toLocaleString() + ' characters';
+
+  // Highlight active button
+  ['nda','service','employment'].forEach(t => {
+    document.getElementById('btn-' + t).classList.toggle('active', t === type);
+  });
+
+  document.getElementById('errorState').classList.remove('active');
+}
+
+// ── RESET ──
+function resetTool() {
+  currentSample = null;
+  document.getElementById('inputSection').style.display = 'block';
+  document.getElementById('resultsSection').classList.remove('active');
+  document.getElementById('loadingState').classList.remove('active');
+  document.getElementById('analyzeBtn').disabled = false;
+  document.getElementById('contractInput').value = '';
+  document.getElementById('charCount').textContent = '0 characters';
+  ['nda','service','employment'].forEach(t => {
+    document.getElementById('btn-' + t).classList.remove('active');
+  });
+}
+
+// ── FILTER ──
+function filterFlags(level, btn) {
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.flag-card').forEach(card => {
+    card.style.display = (level === 'all' || card.dataset.level === level) ? 'block' : 'none';
+  });
+}
+
+// ── ANALYZE ──
+function analyzeContract() {
+  if (!currentSample) {
+    const el = document.getElementById('errorState');
+    el.textContent = 'Please select one of the sample contracts above first.';
+    el.classList.add('active');
+    return;
+  }
+
+  document.getElementById('inputSection').style.display = 'none';
+  document.getElementById('errorState').classList.remove('active');
+  document.getElementById('loadingState').classList.add('active');
+  document.getElementById('analyzeBtn').disabled = true;
+
+  // Animate through loading messages
+  let msgIdx = 0;
+  const interval = setInterval(() => {
+    msgIdx = (msgIdx + 1) % loadingMessages.length;
+    document.getElementById('loadingText').textContent = loadingMessages[msgIdx];
+  }, 900);
+
+  // Simulate realistic analysis time
+  setTimeout(() => {
+    clearInterval(interval);
+    renderResults(results[currentSample]);
+  }, 3200);
+}
+
+// ── RENDER RESULTS ──
+function renderResults(result) {
+  document.getElementById('loadingState').classList.remove('active');
+
+  const flags = result.flags || [];
+  const high  = flags.filter(f => f.risk === 'high').length;
+  const med   = flags.filter(f => f.risk === 'medium').length;
+  const low   = flags.filter(f => f.risk === 'low').length;
+
+  document.getElementById('highCount').textContent  = high;
+  document.getElementById('medCount').textContent   = med;
+  document.getElementById('lowCount').textContent   = low;
+  document.getElementById('totalCount').textContent = flags.length;
+
+  const list = document.getElementById('flagList');
+  list.innerHTML = '';
+
+  flags.forEach((flag, i) => {
+    const card = document.createElement('div');
+    card.className = `flag-card ${flag.risk}`;
+    card.dataset.level = flag.risk;
+    card.style.animationDelay = `${i * 0.1}s`;
+    card.innerHTML = `
+      <div class="flag-top">
+        <div>
+          <div class="flag-category">${esc(flag.category)}</div>
+          <div class="flag-title">${esc(flag.title)}</div>
+        </div>
+        <div class="risk-badge ${flag.risk}">${flag.risk} risk</div>
+      </div>
+      <div class="flag-clause">"${esc(flag.clause)}"</div>
+      <div class="flag-explanation">${esc(flag.explanation)}</div>
+      <div class="flag-suggestion">
+        <div class="suggestion-icon">💡</div>
+        <div>
+          <div class="suggestion-label">Recommended Action</div>
+          <div class="suggestion-text">${esc(flag.suggestion)}</div>
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+
+  document.getElementById('assessmentText').textContent = result.assessment || '';
+
+  // Reset filter tabs
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.filter-tab').classList.add('active');
+
+  document.getElementById('resultsSection').classList.add('active');
+  document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function esc(str) {
+  if (!str) return '';
+  return str
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
